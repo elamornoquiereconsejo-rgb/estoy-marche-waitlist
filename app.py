@@ -25,9 +25,9 @@ def notify(v,text): return send_line(v['line_user_id'],text) if v['contact_metho
 def home(): return render_template('index.html',line_enabled=bool(LID and CALLBACK))
 @app.post('/register')
 def register():
- name=request.form.get('name','').strip();menu=request.form.get('menu','').strip();method=request.form.get('contact_method','');email=request.form.get('email','').strip() or None
- if not name or not menu or method not in ('line','email') or (method=='email' and not email):return render_template('error.html',message='入力内容を確認してください。'),400
- c=conn();t=next_ticket(c);c.execute('INSERT INTO visitors(ticket,name,menu,contact_method,email) VALUES(?,?,?,?,?)',(t,name,menu,method,email));c.commit();c.close();session['oauth_state']=secrets.token_urlsafe(24);session['ticket']=t
+ name=request.form.get('name','').strip();method=request.form.get('contact_method','');email=request.form.get('email','').strip() or None
+ if not name or method not in ('line','email') or (method=='email' and not email):return render_template('error.html',message='入力内容を確認してください。'),400
+ c=conn();t=next_ticket(c);c.execute('INSERT INTO visitors(ticket,name,menu,contact_method,email) VALUES(?,?,?,?,?)',(t,name,'',method,email));c.commit();c.close();session['oauth_state']=secrets.token_urlsafe(24);session['ticket']=t
  return redirect(url_for('line_login',ticket=t)) if method=='line' else redirect(url_for('status',ticket=t))
 @app.get('/line-login/<int:ticket>')
 def line_login(ticket):
